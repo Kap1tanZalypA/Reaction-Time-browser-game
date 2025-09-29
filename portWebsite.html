@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Portfolio</title>
+  <style>
+    :root{
+      --bg:#f9fafb;
+      --text:#111827;
+      --muted:#576f9d;
+      --accent:#5088ea;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.05);position:sticky;top:0;z-index:10}
+    header h1{font-size:20px}
+    nav a{margin-left:20px;text-decoration:none;color:var(--text);font-weight:500}
+    nav a:hover{color:var(--accent)}
+    main{max-width:1000px;margin:40px auto;padding:0 20px}
+    section{margin-bottom:60px}
+    h2{font-size:26px;margin-bottom:16px}
+    .intro h2{font-size:32px;margin-bottom:10px}
+    .intro p{max-width:600px;color:var(--muted)}
+    .about p{max-width:700px}
+    .works{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+    .work-card{background:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.05);padding:20px;transition:transform 0.2s}
+    .work-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block; /* делает всю карточку кликабельной */
+  transition: transform 0.2s ease;
+}
+
+.work-card:hover {
+  transform: translateY(-6px) scale(1.02); /* плавный эффект при наведении */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+    footer{text-align:center;padding:20px;color:var(--muted);border-top:1px solid #e5e7eb;background:#fff}
+    .contact p > a{margin:6px 0;
+        color: black;
+        
+    }
+    .btn{display:inline-block;background:var(--accent);color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none;margin-top:12px}
+    .btn:hover{background:#1d4ed8}
+
+    .btn {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 1s ease; /* smooth transition */
+    
+
+    .btn:hover {
+    background-color: #2980b9; 
+    transform: scale(1.1); 
+}
+
+.btn:active {
+  transform:scale(0.96);
+  box-shadow:0 3px 8px rgba(37,99,235,0.3);
+}
+
+
+    
+    a[href^="mailto"]{
+      color:var(--accent);
+      font-weight:500;
+      text-decoration:none;
+      transition:color 0.3s ease;
+      color:#6b7280
+    }
+    a[href^="mailto"]:hover{
+      
+      text-decoration:underline;
+    }
+}
+
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Portfolio</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#works">Work</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>Hello, I am Nazarii Kriat</h2>
+      <p>I am a passionate developer creating modern and responsive web applications.</p>
+    </section>
+
+    <section class="about" id="about">
+      <h2>About</h2>
+      <p>
+        Welcome to my portfolio! I specialize in building user-friendly and
+        accessible web experiences. I enjoy turning ideas into digital products
+        using HTML, CSS, and JavaScript.
+      </p>
+    </section>
+
+    <section class="works" id="works">
+  <h2>Selected Works</h2>
+  <div class="works">
+    <a href="https://github.com/Kap1tanZalypA/Weather-App-with-Api-and-UI" target="_blank" class="work-card-link">
+      <div class="work-card">
+        <h3>Project One</h3>
+        <p>A Python Weather App with API:s, GUI and animations.</p>
+      </div>
+    </a>
+
+    <a href="https://github.com/Kap1tanZalypA/Reaction-Time-browser-game" target="_blank" class="work-card-link">
+      <div class="work-card">
+        <h3>Project Two</h3>
+        <p>A simple JavaScript game with interactive features.</p>
+      </div>
+    </a>
+
+    <a href="https://github.com/Kap1tanZalypA/recourse-mangment-app" target="_blank" class="work-card-link">
+      <div class="work-card">
+        <h3>Project Three</h3>
+        <p>C# simple recourse management app .</p>
+      </div>
+    </a>
+  </div>
+</section>
+
+    <section class="contact" id="contact">
+      <h2>Contact</h2>
+      <p>Email: <a href="mailto:fiends924@gmail.com">fiends924@gmail.com</a></p>
+      <p>Location: Salo, Finland</p>
+      <a href="mailto:fiends924@gmail.com" class="btn">Get in Touch</a>
+    </section>
+  </main>
+
+  <footer>
+    © 2025 Nazarii Kriat — All rights reserved.
+  </footer>
+
+  <script>
+    
+    document.querySelectorAll('nav a').forEach(a=>{
+      a.addEventListener('click',e=>{
+        e.preventDefault();
+        document.querySelector(a.getAttribute('href'))
+          .scrollIntoView({behavior:'smooth'});
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reaction Time — Catch the GO!</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1724;
+      --accent:#ffd166;
+      --accent-2:#ffb703;
+      --text:#e6eef8;
+      --muted: rgba(230,238,248,0.6);
+      --ok:#4ade80;
+      --bad:#fb7185;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, Arial;background:linear-gradient(180deg,var(--bg) 0%, #071025 100%);color:var(--text);-webkit-font-smoothing:antialiased;}
+    .wrap{max-width:760px;margin:48px auto;padding:22px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,0.6);text-align:center}
+    h1{margin:0 0 6px;font-size:22px}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+    .panel{padding:18px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));display:grid;grid-template-columns:1fr 240px;gap:18px;align-items:center}
+    .left{min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+    .status{
+      width:260px;height:110px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005));
+      font-weight:700;font-size:20px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+    .status.ready{border:2px dashed rgba(255,255,255,0.04)}
+    .status.waiting{background:linear-gradient(180deg,#1f2937,#111827);color:var(--muted);font-size:18px}
+    .status.go{background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#071025;font-size:28px}
+    .controls{display:flex;flex-direction:column;gap:8px}
+    button{cursor:pointer;border:0;padding:10px 14px;border-radius:10px;font-weight:800}
+    .btn-start{background:var(--ok);color:#072116}
+    .btn-stop{background:var(--bad);color:#2b021c}
+    .btn-reset{background:rgba(255,255,255,0.04);color:var(--text);font-weight:700}
+    .right{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+    .score{display:flex;gap:10px;justify-content:space-between;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:700}
+    .small{font-size:13px;color:var(--muted);font-weight:600}
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+    @media (max-width:720px){.panel{grid-template-columns:1fr;}.status{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main" aria-labelledby="title">
+    <h1 id="title">Reaction Time — Catch the GO!</h1>
+    <p class="lead">Press <strong>Start</strong>, wait <strong>GO!</strong> and click or press GO.</p>
+
+    <div class="panel">
+      <div class="left">
+        <div id="status" class="status ready" aria-live="polite">Ready? Press Start</div>
+
+        <div style="display:flex;gap:10px;">
+          <button id="startBtn" class="btn-start">Start</button>
+          <button id="stopBtn" class="btn-stop" disabled>Stop</button>
+          <button id="resetBtn" class="btn-reset">Reset</button>
+        </div>
+        <div class="small" style="margin-top:6px">TIP: you can press <kbd>Space</kbd> or click on the GO!</div>
+      </div>
+
+      <div class="right">
+        <div class="score"><div>Current: <span id="current">—</span> ms</div><div>Best: <span id="best">—</span> ms</div></div>
+        <div class="score"><div>Rounds: <span id="rounds">0</span></div><div>Avarage: <span id="avg">—</span> ms</div></div>
+        <div style="padding:10px;border-radius:8px;background:rgba(255,255,255,0.01);color:var(--muted);font-size:14px">
+          Condition: <strong id="modeText">idle</strong>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+
+  <script>
+    
+    (function(){
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const status = document.getElementById('status');
+      const currentEl = document.getElementById('current');
+      const bestEl = document.getElementById('best');
+      const roundsEl = document.getElementById('rounds');
+      const avgEl = document.getElementById('avg');
+      const modeText = document.getElementById('modeText');
+
+      let timer = null;
+      let waitingForGo = false;
+      let goTime = 0;
+      let startTime = 0;
+      let results = []; // ms
+      let running = false;
+
+      function setMode(m){
+        modeText.textContent = m;
+      }
+
+      function rndDelay(){ return Math.random() * 3000 + 1200; } // 1.2s - 4.2s
+
+      function updateStats(rt){
+        results.push(rt);
+        currentEl.textContent = rt.toFixed(0);
+        bestEl.textContent = Math.min(...results).toFixed(0);
+        roundsEl.textContent = results.length;
+        const avg = results.reduce((a,b)=>a+b,0)/results.length;
+        avgEl.textContent = avg.toFixed(0);
+      }
+
+      function startRound(){
+        if (running) return;
+        running = true;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        setMode('waiting');
+        status.className = 'status waiting';
+        status.textContent = 'Ready...';
+        
+        timer = setTimeout(() => {
+          waitingForGo = true;
+          goTime = performance.now();
+          status.className = 'status go';
+          status.textContent = 'GO!';
+          setMode('go');
+        }, rndDelay());
+      }
+
+      function stopRound(){
+       
+        clearTimeout(timer);
+        timer = null;
+        waitingForGo = false;
+        running = false;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        status.className = 'status ready';
+        status.textContent = 'Stopped. Press Start';
+        setMode('idle');
+      }
+
+      function resetAll(){
+        clearTimeout(timer);
+        timer = null;
+        waitingForGo = false;
+        running = false;
+        results = [];
+        currentEl.textContent = '—';
+        bestEl.textContent = '—';
+        roundsEl.textContent = '0';
+        avgEl.textContent = '—';
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        status.className = 'status ready';
+        status.textContent = 'Ready? Press Start';
+        setMode('idle');
+      }
+
+      function handleAction(){
+       
+        if (!running){
+          
+          startRound();
+          return;
+        }
+        if (!waitingForGo){
+        
+          clearTimeout(timer);
+          timer = null;
+          running = false;
+          waitingForGo = false;
+          status.className = 'status ready';
+          status.textContent = 'Too early! Press Start again';
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          setMode('too-early');
+          return;
+        }
+       
+        const react = performance.now() - goTime;
+        updateStats(react);
+        
+        status.className = 'status ready';
+        status.textContent = `Reaction: ${react.toFixed(0)} ms — press Start`;
+        running = false;
+        waitingForGo = false;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        setMode('idle');
+      }
+
+     
+      startBtn.addEventListener('click', startRound);
+      stopBtn.addEventListener('click', stopRound);
+      resetBtn.addEventListener('click', resetAll);
+
+     
+      status.addEventListener('click', handleAction);
+
+    
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          handleAction();
+        } else if (e.code === 'Enter') {
+          if (!running) startRound();
+        } else if (e.code === 'Escape') {
+          stopRound();
+        }
+      });
+
+      
+      startBtn.focus();
+
+     
+      resetAll();
+    })();
+  </script>
+</body>
+</html>
